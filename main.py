@@ -15,6 +15,7 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown - properly close async engine
     from models import async_engine
+
     await async_engine.dispose()
 
 
