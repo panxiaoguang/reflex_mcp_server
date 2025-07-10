@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Optional
+from typing import List, Annotated
 from contextlib import asynccontextmanager
 from models import Component, DocSection, get_async_session, create_db_and_tables
 from pydantic import BaseModel
@@ -32,7 +32,7 @@ class ComponentResponse(BaseModel):
     name: str
     category: str
     content: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class DocSectionResponse(BaseModel):
@@ -40,21 +40,21 @@ class DocSectionResponse(BaseModel):
     name: str
     section: str
     content: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class ComponentListItem(BaseModel):
     id: int
     name: str
     category: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class DocSectionListItem(BaseModel):
     id: int
     name: str
     section: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 @app.get("/")
@@ -82,7 +82,7 @@ async def get_sections(session: AsyncSession = Depends(get_async_session)):
 
 @app.get("/get_component_doc", response_model=ComponentResponse)
 async def get_component_doc(
-    name: str = Query(..., description="Exact component name"),
+    name: Annotated[str, Query(description="Exact component name")],
     session: AsyncSession = Depends(get_async_session),
 ):
     """Get complete documentation and source code for a specific Reflex component."""
@@ -104,7 +104,7 @@ async def get_component_doc(
 
 @app.get("/list_components", response_model=List[str])
 async def list_components(
-    category: Optional[str] = Query(None, description="Filter by category"),
+    category: Annotated[str | None, Query(description="Filter by category")],
     session: AsyncSession = Depends(get_async_session),
 ):
     """Browse all available Reflex component names by category."""
@@ -121,7 +121,7 @@ async def list_components(
 
 @app.get("/list_doc_sections", response_model=List[str])
 async def list_doc_sections(
-    section: Optional[str] = Query(None, description="Filter by section"),
+    section: Annotated[str | None, Query(description="Filter by section")],
     session: AsyncSession = Depends(get_async_session),
 ):
     """Explore available documentation names by section."""
@@ -138,7 +138,7 @@ async def list_doc_sections(
 
 @app.get("/get_doc", response_model=DocSectionResponse)
 async def get_doc(
-    name: str = Query(..., description="Exact documentation name"),
+    name: Annotated[str, Query(description="Exact documentation name")],
     session: AsyncSession = Depends(get_async_session),
 ):
     """Read a specific documentation file."""
@@ -167,8 +167,3 @@ mcp = FastApiMCP(
 )
 
 mcp.mount()
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,28 +1,28 @@
-from sqlmodel import SQLModel, Field, select
+from sqlmodel import SQLModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from typing import Optional, AsyncGenerator
+from typing import AsyncGenerator
 from datetime import datetime
 from sqlmodel import create_engine
 from sqlmodel import Session
 
 
 class Component(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True, unique=True)
     category: str = Field(index=True)
     file_path: str
     content: str
-    description: Optional[str] = None
+    description: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class DocSection(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True, unique=True)
     section: str = Field(index=True)
     file_path: str
     content: str
-    description: Optional[str] = None
+    description: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
